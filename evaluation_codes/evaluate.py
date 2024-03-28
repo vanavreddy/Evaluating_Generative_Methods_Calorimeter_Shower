@@ -423,8 +423,8 @@ if __name__ == '__main__':
     particle = {'1-photons': 'photon', '1-pions': 'pion',
                 '2': 'electron', '3': 'electron'}[args.dataset]
     # minimal readout per voxel, ds1: from Michele, ds2/3: 0.5 keV / 0.033 scaling factor
-    args.min_energy = {'1-photons': 10, '1-pions': 10,
-                       '2': 0.5e-3/0.033, '3': 0.5e-3/0.033}[args.dataset]
+    args.min_energy = {'1-photons': 10e-3, '1-pions': 10e-3,
+                       '2': 0.5e-6/0.033, '3': 0.5e-6/0.033}[args.dataset]
 
     hlf = HLF.HighLevelFeatures(particle,
                                 filename='binning_dataset_{}.xml'.format(
