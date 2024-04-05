@@ -395,7 +395,8 @@ def save_reference(ref_hlf, fname):
 
 def plot_histograms(hlf_class, reference_class, arg):
     """ plots histograms based with reference file as comparison """
-    plot_E_group_layers(hlf_class, reference_class,arg)
+    if arg.dataset=='2' or '3':
+        plot_E_group_layers(hlf_class, reference_class,arg)
     plot_Etot_Einc(hlf_class, reference_class, arg)
     plot_E_layers(hlf_class, reference_class, arg)
     plot_ECEtas(hlf_class, reference_class, arg)
