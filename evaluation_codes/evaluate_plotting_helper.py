@@ -128,16 +128,19 @@ def plot_E_group_layers(hlf_class, reference_class,arg):
     # this is only applicable for dataset 2 and dataset 3. Dataset 1 does not need this
     
     keys = [[i+j for j in range(5)] for i in range(0, 45, 5)]
+
+    
     
     for key in keys:
-        selected_ref = [reference_class.GetElayers()[i].reshape(100000,1)/1000 for i in key]#turning into GeV
+        shape_a=reference_class.GetElayers()[0].shape[0]
+        selected_ref = [reference_class.GetElayers()[i].reshape(shape_a,1)/1000 for i in key]#turning into GeV
         combined_ref = np.concatenate(selected_ref, axis=1)
         #print("Shape of combined array:", combined_ref.shape)
         mean_ref = np.mean(combined_ref, axis=1, keepdims=True) 
         print("mean_ref",mean_ref.shape)
         print(hlf_class.GetElayers().keys())
-        
-        selected_hlf=[hlf_class.GetElayers()[i].reshape(10000,1)/1000 for i in key]#turning into GeV
+        shape_b=hlf_class.GetElayers()[0].shape[0]
+        selected_hlf=[hlf_class.GetElayers()[i].reshape(shape_b,1)/1000 for i in key]#turning into GeV
         combined_hlf = np.concatenate(selected_hlf, axis=1)
         #print("Shape of combined array:", combined_ref.shape)
         mean_hlf = np.mean(combined_hlf, axis=1, keepdims=True) 
