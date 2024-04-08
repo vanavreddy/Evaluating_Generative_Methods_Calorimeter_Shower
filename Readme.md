@@ -63,6 +63,10 @@ Find an example sbatch file and the paper in CaloINN folder of this repository.
 The required environment packages can be found in the CaloFlow folder of this repository. 
 
  After that follow the same instructions found in their own git repository.
+
+## To generate Layer-wise energy distribution for Dataset 1:
+ Follow the jupyter notebook named generic_ds1.ipynb available in evaluation_codes directory.
+ It has necessary instructions to follow.
 ## To generate the correlation graphs:
 
 1. module load anaconda
