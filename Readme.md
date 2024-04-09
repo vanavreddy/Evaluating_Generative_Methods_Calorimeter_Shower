@@ -33,12 +33,23 @@ In the following few sections we are discussing how to train and generate sample
 ## CaloDiffusion
 The github page is missing the requirement.txt file. Our own requirement.txt for this model can be found in the CaloDiffusion folder of this project. 
 
-After that to train, sample and plotting we follow the same commands that is mentioned in their own repository. 
+To train, sample and plotting we follow the same commands that is mentioned in their own repository. 
 
 An example sbatch file to generate sample for dataset 1 can also be found in CaloDiffusion folder in our repository.
+
+## CaloScore 
+1. See the link below (install TensorFlow and Keras together on one command-line). In the link, start with step2 since step1 (nvidia driver) is already installed on Rivanna nodes.
+https://gretel.ai/blog/install-tensorflow-with-cuda-cdnn-and-gpu-support-in-4-easy-steps
+2. Install the other packages horovod, matplotlib etc
+3. ptxas error, see the link below 
+https://stackoverflow.com/questions/66029426/anaconda-showing-this-error-cant-train-model-properly
+4. If tensorrt is not installed, see the link below (tensorsort may not be needed)
+https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html
+
+
 ## CaloINN
 
-The repository link has a requirement.txt file, we use the same requirement.txt file to create the environment. Other than that, I need to follow some additional steps to run. I am explaining them in the following paragraph:
+The repository link has a requirement.txt file, we use the same requirement.txt file to create the environment. Other than that, We need to follow some additional steps to run. 
 
 1. This code uses Latex with Matplotlib. Since we need to install TeXLive. TeXLive is available in the modules of Rivanna. Here is the link to do that https://www.rc.virginia.edu/userinfo/rivanna/software/texlive/#add-local-package
 
