@@ -66,7 +66,8 @@ The required environment packages can be found in the CaloFlow folder of this re
 
 ## To generate Layer-wise energy distribution for Dataset 1:
  Follow the jupyter notebook named generic_ds1.ipynb available in evaluation_codes directory.
- It has necessary instructions to follow.
+ It has necessary instructions to follow. This will generate images like this.
+ ![Energy distribution of Layer 0 in Dataset 1 for Photon](E_layer_0_dataset_1-photons.pdf)
 ## To generate the correlation graphs:
 
 1. module load anaconda
