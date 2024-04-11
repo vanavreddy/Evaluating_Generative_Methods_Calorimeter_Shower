@@ -9,6 +9,7 @@ from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
 import argparse
 from correlations_helper import *
+import sys
 
 
 parser = argparse.ArgumentParser(description=('Evaluate calorimeter showers of the '+\
@@ -84,7 +85,12 @@ def process_layer_sum(shower,shape):
 
 
 if __name__ == '__main__':
+
     args = parser.parse_args()
+
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit()
 
     if not os.path.isdir(args.output_dir):
         os.makedirs(args.output_dir)
@@ -128,7 +134,7 @@ if __name__ == '__main__':
         
         file_name=f"l2l_corr_Geant4_DS_{args.dataset}.pdf"
         data_name=f"dataset_{args.dataset}"
-        draw_heatmap(ref_corr,file_name,data_name)
+        draw_heatmap(ref_corr,os.path.join(args.output_dir,file_name),data_name)
         
     elif args.mode=='corr_dual':
         for i in range(0,45,5):
