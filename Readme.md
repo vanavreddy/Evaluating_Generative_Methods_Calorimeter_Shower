@@ -90,4 +90,5 @@ The required environment packages can be found in the CaloFlow folder of this re
 4. Applicable for all dataset.
 
 > python correlate.py -i path_to_input_samples -r path_to_Geant4_samples -d '2' -m 'corr' -n 'CaloDiffusion'
-This command will generate graphs like this ![Correlation heatmap for dataset 2 for all 45 layers](correlation_heatmap_gen_ds_2 (1).png)
+This command will generate graphs like this
+![Correlation heatmap for dataset 2 for all 45 layers](correlation_heatmap_gen_ds_2.png)
