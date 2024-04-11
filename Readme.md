@@ -87,6 +87,8 @@ The required environment packages can be found in the CaloFlow folder of this re
 
 > python correlate.py -i path_to_input_samples -r path_to_Geant4_samples -d '2' -m 'corr_dual' -n 'CaloDiffusion'
 
+This will generate images like this.
+![correlation heatmap for Dataset 3 but with 5 layer range](testing_ds3_35_45.png)
 4. Applicable for all dataset.
    
 > python correlate.py -i path_to_input_samples -r path_to_Geant4_samples -d '2' -m 'corr' -n 'CaloDiffusion'
