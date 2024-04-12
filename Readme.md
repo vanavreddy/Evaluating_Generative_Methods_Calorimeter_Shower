@@ -84,15 +84,15 @@ The required environment packages can be found in the CaloFlow folder of this re
 1. module load anaconda
 2. conda activate caloflow_env
 3. This is only applicable for Dataset 2 and Dataset 3
-
-> python correlate.py -i path_to_input_samples -r path_to_Geant4_samples -d '2' -m 'corr_dual' -n 'CaloDiffusion'
-
+```
+python correlate.py -i path_to_input_samples -r path_to_Geant4_samples -d '2' -m 'corr_dual' -n 'CaloDiffusion'
+```
 This will generate images like this.
 ![correlation heatmap for Dataset 3 but with 5 layer range](testing_ds3_35_45.png)
 4. Applicable for all dataset.
-   
-> python correlate.py -i path_to_input_samples -r path_to_Geant4_samples -d '2' -m 'corr' -n 'CaloDiffusion'
-
+```
+python correlate.py -i path_to_input_samples -r path_to_Geant4_samples -d '2' -m 'corr' -n 'CaloDiffusion'
+```
 This will generate images like this.
  ![correlation heatmap for dataset 2](correlation_heatmap_gen_ds_2.png)
 
