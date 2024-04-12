@@ -82,6 +82,15 @@ plt.ylabel('Num. showers')
 plt.show()
 
 
+bins = np.logspace(3,6,30)
+plt.hist(e4, bins=bins)
+plt.xscale('log')
+plt.xlabel('Energy [MeV]')
+plt.ylabel('Num. showers')
+plt.show()
+
+
+
 # In[ ]:
 
 
@@ -113,7 +122,7 @@ def _separation_power(hist1, hist2, bins):
 
 min_energy=0.5e-6/0.033
 x_scale='log'
-def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,name):
+def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,hlf_class_3,name):
     """ plots energy deposited in 5 consecutive layers by creating a group of 5 layers"""
     # this is only applicable for dataset 2 and dataset 3. Dataset 1 does not need this
     fig, axs = plt.subplots(3, 3, figsize=(15, 15))
@@ -140,6 +149,12 @@ def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,name):
         selected_hlf_2=[hlf_class_2.GetElayers()[i].reshape(shape_c,1)/1000 for i in key]#turning into GeV
         combined_hlf_2 = np.concatenate(selected_hlf_2, axis=1)
         mean_hlf_2 = np.mean(combined_hlf_2, axis=1, keepdims=True) 
+
+        shape_d=hlf_class_3.GetElayers()[0].shape[0]
+        selected_hlf_3=[hlf_class_3.GetElayers()[i].reshape(shape_d,1)/1000 for i in key]#turning into GeV
+        combined_hlf_3 = np.concatenate(selected_hlf_3, axis=1)
+        mean_hlf_3 = np.mean(combined_hlf_3, axis=1, keepdims=True)
+
         
         
         
@@ -164,7 +179,7 @@ def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,name):
         counts_data_2, _, _ = axs[i].hist(mean_hlf_2, label='CaloINN', bins=bins,
                                      histtype='step',color='green', linewidth=3., alpha=1., density=True)
 
-        counts_data_3, _, _ = axs[i].hist(mean_hlf_2, label='CaloScore', bins=bins,
+        counts_data_3, _, _ = axs[i].hist(mean_hlf_3, label='CaloScore', bins=bins,
                                      histtype='step',color='blue', linewidth=3., alpha=1., density=True)
         
         axs[i].set_title("layer {} to {}".format(key[0],key[4]))
@@ -230,6 +245,7 @@ for i in range(len(target_energies)-1):
     
     hlf = HLF.HighLevelFeatures(particle,binning_file)
     hlf_2=HLF.HighLevelFeatures(particle,binning_file)
+    hlf_3=HLF.HighLevelFeatures(particle,binning_file)
     ref_hlf=HLF.HighLevelFeatures(particle,binning_file)
     filename = str(target_energies[i]/1000)+'GeV to <'+str(target_energies[i+1]/1000)+' GeV'
     which_showers = ((e >= target_energies[i]) & \
@@ -257,10 +273,10 @@ for i in range(len(target_energies)-1):
     
     which_showers_3=((e4 >= target_energies[i]) & \
                      (e4 < target_energies[i+1])).squeeze()
-    hlf_2.Einc=e4[which_showers_3]
-    hlf_2.CalculateFeatures(shower4[which_showers_3])
+    hlf_3.Einc=e4[which_showers_3]
+    hlf_3.CalculateFeatures(shower4[which_showers_3])
 
-    plot_E_group_layers_(hlf,ref_hlf,hlf_2,name=filename)
+    plot_E_group_layers_(hlf,ref_hlf,hlf_2,hlf_3,name=filename)
     
     
     
@@ -296,10 +312,10 @@ hlf.CalculateFeatures(shower2)
 hlf_2.Einc=e3
 hlf_2.CalculateFeatures(shower3)
     
-hlf_2.Einc=e4
-hlf_2.CalculateFeatures(shower4)
+hlf_3.Einc=e4
+hlf_3.CalculateFeatures(shower4)
 
-plot_E_group_layers_(hlf,ref_hlf,hlf_2,name=filename)
+plot_E_group_layers_(hlf,ref_hlf,hlf_2,hlf_3,name=filename)
 
 
 # In[ ]:
