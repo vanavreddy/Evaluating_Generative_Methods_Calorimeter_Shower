@@ -13,6 +13,7 @@ import torch
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.model_selection import train_test_split
 import HighLevelFeatures as HLF
+import sys
 
 import re
 
@@ -139,7 +140,9 @@ x_scale='log'
 min_energy=10
 
 def plot_E_layers(hlf_classes, x_scale,model_names,min_energy):
+    idx = 0
     for key in hlf_classes[0].GetElayers().keys():
+        idx += 1
         plt.figure(figsize=(6, 6))
         
         if x_scale == 'log':
@@ -163,6 +166,7 @@ def plot_E_layers(hlf_classes, x_scale,model_names,min_energy):
         if x_scale=='log':
             plt.xscale('log')
         plt.legend(fontsize=12,loc='upper right')
+
         plt.tight_layout(pad=3.0)
         
         filename = 'E_layer_{}_dataset_{}.pdf'.format(
@@ -193,7 +197,6 @@ def plot_E_layers(hlf_classes, x_scale,model_names,min_energy):
             
         plt.close()
     print("Plot generation completed..")
-
 
 # In[ ]:
 

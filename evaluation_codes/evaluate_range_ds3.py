@@ -38,15 +38,17 @@ def file_read(file_name):
 # In[ ]:
 
 
-file_ds2='/home/vv3xu/Calorimeter_Data_To_Evaluate/dataset_2/dataset_2_electron_Geant4.h5'
+file_ds2='/home/vv3xu/Calochallenege_Data/dataset_3/dataset_3_te.hdf5'
 e,shower=file_read(file_ds2)
 print(e.shape,shower.shape)
-file2='/home/vv3xu/Calorimeter_Data_To_Evaluate/dataset_2/dataset_2_electron_CaloDiffusion.h5'
+file2='/home/vv3xu/Calorimeter_Data_To_Evaluate/dataset_3/dataset_3_electron_CaloDiffusion.h5'
 e2,shower2=file_read(file2)
+'''
 file3='/home/vv3xu/Calorimeter_Data_To_Evaluate/dataset_2/dataset_2_electron_CaloINN.h5'
 e3,shower3=file_read(file3)
 file4='/home/vv3xu/Calorimeter_Data_To_Evaluate/dataset_2/dataset_2_electron_CaloScore.h5'
 e4,shower4=file_read(file4)
+'''
 
 
 # In[ ]:
@@ -73,12 +75,12 @@ plt.show()
 
 # In[ ]:
 
+'''
 bins = np.logspace(3,6,30)
 plt.hist(e3, bins=bins)
 plt.xscale('log')
 plt.xlabel('Energy [MeV]')
 plt.ylabel('Num. showers')
-#plt.savefig("hist.pdf", bbox_inches='tight', dpi=300)
 plt.show()
 
 
@@ -88,12 +90,13 @@ plt.xscale('log')
 plt.xlabel('Energy [MeV]')
 plt.ylabel('Num. showers')
 plt.show()
+'''
 
 
 # In[ ]:
 
 
-min(e3)
+#min(e3)
 
 
 # In[ ]:
@@ -121,7 +124,8 @@ def _separation_power(hist1, hist2, bins):
 
 min_energy=0.5e-6/0.033
 x_scale='log'
-def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,hlf_class_3,name):
+#def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,hlf_class_3,name):
+def plot_E_group_layers_(hlf_class, reference_class,name):
     """ plots energy deposited in 5 consecutive layers by creating a group of 5 layers"""
     # this is only applicable for dataset 2 and dataset 3. Dataset 1 does not need this
     fig, axs = plt.subplots(3, 3, figsize=(15, 15))
@@ -147,6 +151,8 @@ def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,hlf_class_3,name
         combined_hlf = np.concatenate(selected_hlf, axis=1)
         mean_hlf = np.mean(combined_hlf, axis=1, keepdims=True) 
 
+        '''
+        
         shape_c=hlf_class_2.GetElayers()[0].shape[0]
         selected_hlf_2=[hlf_class_2.GetElayers()[i].reshape(shape_c,1)/1000 for i in key]#turning into GeV
         combined_hlf_2 = np.concatenate(selected_hlf_2, axis=1)
@@ -156,6 +162,11 @@ def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,hlf_class_3,name
         selected_hlf_3=[hlf_class_3.GetElayers()[i].reshape(shape_d,1)/1000 for i in key]#turning into GeV
         combined_hlf_3 = np.concatenate(selected_hlf_3, axis=1)
         mean_hlf_3 = np.mean(combined_hlf_3, axis=1, keepdims=True)
+        '''
+        
+        
+        
+        
         
         if x_scale == 'log':
             #min_energy=
@@ -172,20 +183,24 @@ def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,hlf_class_3,name
                                        alpha=0.2, linewidth=3.)
         counts_data, _, _ = axs[i].hist(mean_hlf, label='Calodiff', bins=bins,
                                      histtype='step',color='salmon', linewidth=3., alpha=1., density=True)
+        ''' 
         counts_data_2, _, _ = axs[i].hist(mean_hlf_2, label='CaloINN', bins=bins,
                                      histtype='step',color='green', linewidth=3., alpha=1., density=True)
 
         counts_data_3, _, _ = axs[i].hist(mean_hlf_3, label='CaloScore', bins=bins,
                                      histtype='step',color='blue', linewidth=3., alpha=1., density=True)
+        '''
+        
         axs[i].set_title("layer {} to {}".format(key[0],key[4]))
         axs[i].set_xlabel(r'$E$ [GeV]')
         axs[i].set_yscale('log')
         axs[i].set_xscale('log')
         #plt.legend(fontsize=20)
-        #axs[i].legend(['Geant4 (dataset 2)','CaloDiff','CaloINN','CaloScore'],fontsize=12,prop={'size': 10},loc='upper right', bbox_to_anchor=(1.0, 1.0))
         test1=_separation_power(counts_ref, counts_data, bins)
+        '''
         test2=_separation_power(counts_ref, counts_data_2, bins)
         test3=_separation_power(counts_ref, counts_data_3, bins)
+        '''
         
 #         with open('histogram_chi2_{}.txt'.format(2),
 #                   'a') as f:
@@ -193,15 +208,15 @@ def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,hlf_class_3,name
 
 #             f.write('\n\n')
 
-        print("separation power between (Geant4 and CaloDiff) is {} and (Geant4 and CaloINN) is {} and (Geant4 and CaloScore) is {} for layer {} to {}".format(test1,test2,test3,key[0],key[4]))
+        #print("separation power between (Geant4 and CaloDiff) is {} and (Geant4 and CaloINN) is {} and (Geant4 and CaloScore) is {} for layer {} to {}".format(test1,test2,test3,key[0],key[4]))
+        print("separation power between (Geant4 and CaloDiff) is {}".format(test1,key[0],key[4]))
 
-    fig.legend(['Geant4 (dataset 2)','CaloDiff','CaloINN','CaloScore'], fontsize=12, prop={'size': 10},
+    fig.legend(['Geant4 (dataset 3)','CaloDiff'], fontsize=12, prop={'size': 10},
             loc='upper center', bbox_to_anchor=(0.5, 1.0), ncols=4)
     plt.tight_layout(pad=3.0)
     
 
-    filename =  'E_layers_dataset_{}_{}.pdf'.format(
-        2,name)
+    filename =  'E_layers_dataset_{}_{}.pdf'.format(3,name)
         #, dpi=300
     plt.savefig(filename,dpi=300)
 
@@ -215,7 +230,8 @@ def plot_E_group_layers_(hlf_class, reference_class,hlf_class_2,hlf_class_3,name
 
 #from evaluate_plotting_helper import *
 
-binning_file="/project/biocomplexity/calorimeter/CaloDiffusionPaper/CaloChallenge/CaloChallenge/code/binning_dataset_2.xml"
+#binning_file="/project/biocomplexity/calorimeter/CaloDiffusionPaper/CaloChallenge/CaloChallenge/code/binning_dataset_2.xml"
+binning_file="/project/biocomplexity/calorimeter/CaloDiffusionPaper/CaloChallenge/CaloChallenge/code/binning_dataset_3.xml"
 particle='electron'
 hlf = HLF.HighLevelFeatures(particle,binning_file)
 ref_hlf=HLF.HighLevelFeatures(particle,binning_file)
@@ -241,9 +257,12 @@ hlf.CalculateFeatures(shower2)
 for i in range(len(target_energies)-1):
     
     hlf = HLF.HighLevelFeatures(particle,binning_file)
+    '''
     hlf_2=HLF.HighLevelFeatures(particle,binning_file)
     hlf_3=HLF.HighLevelFeatures(particle,binning_file)
+    '''
     ref_hlf=HLF.HighLevelFeatures(particle,binning_file)
+    #filename = str(target_energies[i]/1000)+'GeV to <'+str(target_energies[i+1]/1000)+' GeV'
     filename = str(target_energies[i]/1000)+'GeV_'+str(target_energies[i+1]/1000)+'_GeV'
     which_showers = ((e >= target_energies[i]) & \
                      (e < target_energies[i+1])).squeeze()
@@ -262,6 +281,7 @@ for i in range(len(target_energies)-1):
     # print(which_showers_1.shape)
     # print(shower2[which_showers_1].shape)
     
+    ''' 
     which_showers_2=((e3 >= target_energies[i]) & \
                      (e3 < target_energies[i+1])).squeeze()
     hlf_2.Einc=e3[which_showers_2]
@@ -271,8 +291,15 @@ for i in range(len(target_energies)-1):
                      (e4 < target_energies[i+1])).squeeze()
     hlf_3.Einc=e4[which_showers_3]
     hlf_3.CalculateFeatures(shower4[which_showers_3])
+    '''
 
-    plot_E_group_layers_(hlf,ref_hlf,hlf_2,hlf_3,name=filename)
+    #plot_E_group_layers_(hlf,ref_hlf,hlf_2,hlf_3,name=filename)
+    plot_E_group_layers_(hlf,ref_hlf,name=filename)
+    
+    
+    
+    
+    
 
 #     if reference_hlf.E_tot is None:
 #         reference_hlf.CalculateFeatures(reference_shower[which_showers])
@@ -299,11 +326,26 @@ ref_hlf.CalculateFeatures(shower)
 hlf.Einc=e2
 hlf.CalculateFeatures(shower2)
 
+'''
 hlf_2.Einc=e3
 hlf_2.CalculateFeatures(shower3)
     
 hlf_3.Einc=e4
 hlf_3.CalculateFeatures(shower4)
+'''
 
-plot_E_group_layers_(hlf,ref_hlf,hlf_2,hlf_3,name=filename)
+#plot_E_group_layers_(hlf,ref_hlf,hlf_2,hlf_3,name=filename)
+plot_E_group_layers_(hlf,ref_hlf,name=filename)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
