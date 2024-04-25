@@ -98,6 +98,6 @@ This will generate images like this.
 
 ## To generate Energy grouped by layers
 ```
-python evaluate_range.py --dataset_path <path-to-all-generated-files> --binning_file <path-to-binning.xml> --particle_type <photon-or-pion-or-electron> --dataset_num <2-or-3>
+python evaluate_range.py --dataset_path <path-to-all-generated-samples> --binning_file <path-to-binning.xml> --particle_type <photon-or-pion-or-electron> --dataset_num <2-or-3>
 ```
 
