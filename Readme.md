@@ -96,3 +96,8 @@ python correlate.py -i path_to_input_samples -r path_to_Geant4_samples -d '2' -m
 This will generate images like this.
  ![correlation heatmap for dataset 2](correlation_heatmap_gen_ds_2.png)
 
+## To generate Energey grouped by layers
+```
+python evaluate_range.py --dataset_path <path-to-all-generated-files> --binning_file <path-to-binning.xml> --particle_type <photon-or-pion-or-electron> --dataset_num <2-or-3>
+```
+
