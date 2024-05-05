@@ -9,6 +9,7 @@ import HighLevelFeatures as HLF
 from pathlib import Path
 import configargparse
 import sys
+import pandas as pd
 
 
 def file_read(file_name):
@@ -33,7 +34,7 @@ def calculate_separation_power(hist1, hist2, bins):
 
 min_energy=0.5e-6/0.033
 x_scale='log'
-def plot_E_group_layers(ref_model, hlf_classes, model_names, plot_filename):
+def plot_E_group_layers(ref_model, hlf_classes, model_names, plot_filename, e_range):
     """ plots energy deposited in 5 consecutive layers by creating a group of 5 layers"""
     # this is only applicable for dataset 2 and dataset 3. Dataset 1 does not need this
 
@@ -46,10 +47,16 @@ def plot_E_group_layers(ref_model, hlf_classes, model_names, plot_filename):
     keys = [[i+j for j in range(5)] for i in range(0, 45, 5)]
     axs = axs.flatten()
 
-    for i, key in enumerate(keys):
+    print("Range: ", e_range)
 
-        sep_powers = []
+    sep_powers_all = []
+    layers_all = []
+
+    for i, key in enumerate(keys):
         
+        sep_powers = []
+        layers = []
+
         ref_shape = hlf_classes[ref_model].GetElayers()[0].shape[0]
         ref_selected = [hlf_classes[ref_model].GetElayers()[i].reshape(ref_shape, 1)/1000 for i in key]#turning into GeV
         ref_combined = np.concatenate(ref_selected, axis=1)
@@ -64,6 +71,8 @@ def plot_E_group_layers(ref_model, hlf_classes, model_names, plot_filename):
         ref_counts, bins, _ = axs[i].hist(ref_mean, bins=bins, label=ref_model, density=True, 
                                 histtype='step',color=colors[0], alpha=0.2, linewidth=3.)
 
+        this_layer = str(key[0]) + "-" + str(key[4]) 
+        sep_powers.append(this_layer)
         sep_powers.append(0) # seperation power baselin, Geant4 with itself
             
         for j, model in enumerate(model_names):
@@ -84,17 +93,33 @@ def plot_E_group_layers(ref_model, hlf_classes, model_names, plot_filename):
                 sep_power = calculate_separation_power(ref_counts, model_counts, bins)
                 sep_powers.append(sep_power)
            
-        #print("separation power {}, {}, {}, {} is {}, {}, {}, {}, for layer {} to {}".format(
-            #model_names[0], model_names[1], model_names[2], model_names[3], 
-            #sep_powers[0], sep_powers[1], sep_powers[2], sep_powers[3],
-        print("separation power {} is {}, for layer {} to {}".format(model_names, sep_powers,
-            key[0], key[4]))
+        layers.append(str(key[0]) + "-" + str(key[4]))
 
+        sep_powers_all.append(sep_powers)
+        #print("separation power {} is {}, for layers {}".format(model_names, sep_powers, this_layer))
+
+    # Plot E layers
     fig.legend(model_names_full, fontsize=12, prop={'size': 10},
             loc='upper center', bbox_to_anchor=(0.5, 1.0), ncols=4)
     plt.tight_layout(pad=3.0)
     
     plt.savefig(plot_filename, dpi=300)
+
+
+    # Plot chi-squared a.k.a seperation power 
+    model_names.insert(0, 'Layers')
+    df = pd.DataFrame(sep_powers_all, columns=model_names)
+    df.plot(x='Layers', y=['Geant4', 'CaloDiffusion', 'CaloScore', 'CaloINN'],
+        color=['black', 'salmon', 'blue', 'green'], figsize=(10,5))
+    # Set the x-axis label
+    plt.xlabel('Layers')
+    # Set the y-axis label
+    plt.ylabel('Separation power')
+    plt.legend(ncol=4, bbox_to_anchor=(0.5, 0.98),
+           loc='upper center', fontsize=12)
+    # save plot
+    plt.savefig("sep_pow_" + e_range + ".pdf", bbox_inches='tight', dpi=300)
+
     plt.close()
 
 def extract_model_names(evaluate_files_list):
@@ -152,7 +177,7 @@ if __name__ == "__main__":
         e_range = str(int(target_energies[i]/1000))+'GeV_'+str(int(target_energies[i+1]/1000))+'_GeV'
         plot_filename =  'E_layers_dataset_{}_{}.pdf'.format(args.dataset_num, e_range)
         ref = 'Geant4'
-        plot_E_group_layers(ref, hlfs, model_names, plot_filename)
+        plot_E_group_layers(ref, hlfs, model_names, plot_filename, e_range)
 
         model_names = extract_model_names(evaluate_files_list)
 
@@ -170,7 +195,7 @@ if __name__ == "__main__":
 
     plot_filename =  'E_layers_dataset_{}_{}.pdf'.format(args.dataset_num, 'all')
     ref = 'Geant4'
-    plot_E_group_layers(ref, hlfs, model_names, plot_filename)
+    plot_E_group_layers(ref, hlfs, model_names, plot_filename, e_range='all')
 
     print("done plotting...")
 
