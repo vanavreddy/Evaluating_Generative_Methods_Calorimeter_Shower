@@ -44,12 +44,15 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import roc_auc_score
 from sklearn.calibration import calibration_curve
 from sklearn.isotonic import IsotonicRegression
+from torch import autograd # Vana
 
 import HighLevelFeatures as HLF
 
 from evaluate_plotting_helper import *
 
-torch.set_default_dtype(torch.float64)
+# Vana - comment this line for DS3 - CLS-LOW and CLS-LOW-NORMED
+torch.set_default_dtype(torch.float64) # Vana original line
+#torch.set_default_dtype(torch.float32) # Vana added, comment this line for cls-high
 
 plt.rc('text', usetex=True)
 plt.rc('text.latex', preamble=r'\usepackage{amsmath,amssymb}')
@@ -105,9 +108,9 @@ parser.add_argument('--cls_n_hidden', type=int, default='512',
 parser.add_argument('--cls_dropout_probability', type=float, default=0.,
                     help='Dropout probability of the classifier, default is 0.')
 
-parser.add_argument('--cls_batch_size', type=int, default=1000,
+parser.add_argument('--cls_batch_size', type=int, default=100,
                     help='Classifier batch size, default is 1000.')
-parser.add_argument('--cls_n_epochs', type=int, default=50,
+parser.add_argument('--cls_n_epochs', type=int, default=50, # Vana original line
                     help='Number of epochs to train classifier, default is 50.')
 parser.add_argument('--cls_lr', type=float, default=2e-4,
                     help='Learning rate of the classifier, default is 2e-4.')
@@ -145,6 +148,7 @@ class DNN(torch.nn.Module):
 
     def forward(self, x):
         """ Forward pass through the DNN """
+        #print("Forward dtype: ", x.dtype) # Vana added
         x = self.layers(x)
         return x
 
@@ -198,6 +202,7 @@ def ttv_split(data1, data2, split=np.array([0.6, 0.2, 0.2])):
     """ splits data1 and data2 in train/test/val according to split,
         returns shuffled and merged arrays
     """
+    #print("Before assert: ", len(data1), len(data2)) # Vana added
     assert len(data1) == len(data2)
     num_events = (len(data1) * split).astype(int)
     np.random.shuffle(data1)
@@ -214,7 +219,9 @@ def ttv_split(data1, data2, split=np.array([0.6, 0.2, 0.2])):
 
 def load_classifier(constructed_model, parser_args):
     """ loads a saved model """
-    filename = parser_args.mode + '_' + parser_args.dataset + '.pt'
+    #filename = parser_args.mode + '_' + parser_args.dataset + '.pt' # Vana original line
+    model_name = parser_args.input_file.split('/')[-1].split('_')[-1].split('.')[0] # Vana added 
+    filename = parser_args.mode + '_' + parser_args.dataset + '_' + model_name + '.pt'
     checkpoint = torch.load(os.path.join(parser_args.output_dir, filename),
                             map_location=parser_args.device)
     constructed_model.load_state_dict(checkpoint['model_state_dict'])
@@ -228,6 +235,7 @@ def train_and_evaluate_cls(model, data_train, data_test, optim, arg):
     """ train the model and evaluate along the way"""
     best_eval_acc = float('-inf')
     arg.best_epoch = -1
+    model_name = arg.input_file.split('/')[-1].split('_')[-1].split('.')[0] # Vana added 
     try:
         for i in range(arg.cls_n_epochs):
             train_cls(model, data_train, optim, i, arg)
@@ -236,7 +244,8 @@ def train_and_evaluate_cls(model, data_train, data_test, optim, arg):
             if eval_acc > best_eval_acc:
                 best_eval_acc = eval_acc
                 arg.best_epoch = i+1
-                filename = arg.mode + '_' + arg.dataset + '.pt'
+                #filename = arg.mode + '_' + arg.dataset + '.pt' # Vana original line
+                filename = arg.mode + '_' + arg.dataset + '_' + model_name + '.pt' # Vana added
                 torch.save({'model_state_dict':model.state_dict()},
                            os.path.join(arg.output_dir, filename))
             if eval_acc == 1.:
@@ -254,14 +263,23 @@ def train_cls(model, data_train, optim, epoch, arg):
             data_batch = data_batch[0].to(arg.device)
         else:
             data_batch = data_batch[0]
-        #input_vector, target_vector = torch.split(data_batch, [data_batch.size()[1]-1, 1], dim=1)
-        input_vector, target_vector = data_batch[:, :-1], data_batch[:, -1]
+        #input_vector, target_vector = torch.split(data_batch, [data_batch.size()[1]-1, 1], dim=1) # Vana, originally commnted line
+        #print(data_batch, data_batch.size(), data_batch.size()[1]-1, [data_batch.size()[1]-1, 1])
+        input_vector, target_vector = data_batch[:, :-1], data_batch[:, -1] # Vana original line
+        #print("Model's input dtype: ", input_vector.dtype) # Vana added
         output_vector = model(input_vector)
-        criterion = torch.nn.BCEWithLogitsLoss()
-        loss = criterion(output_vector, target_vector.unsqueeze(1))
+        criterion = torch.nn.BCEWithLogitsLoss() 
+        loss = criterion(output_vector, target_vector.unsqueeze(1)) # Vana: original line
+        #loss = criterion(output_vector, target_vector) # Vana added 
 
         optim.zero_grad()
         loss.backward()
+        '''
+	# Vana
+        #with autograd.detect_anomaly():
+        #    loss.backward()
+	# Vana
+        '''
         optim.step()
 
         if i % (len(data_train)//2) == 0:
@@ -320,6 +338,8 @@ def evaluate_cls(model, data_test, arg, final_eval=False, calibration_data=None)
         prob_true, prob_pred = calibration_curve(result_true, rescaled_pred, n_bins=10)
         print("rescaled calibration curve:", prob_true, prob_pred)
         # calibration was done after sigmoid, therefore only BCELoss() needed here:
+        #print("Before BCE: ", rescaled_pred.dtype, result_true.dtype) # Vana added
+        #result_true = np.float32(result_true) # Vana added, comment this line for cls-high
         BCE = torch.nn.BCELoss()(torch.tensor(rescaled_pred), torch.tensor(result_true))
         JSD = - BCE.cpu().numpy() + np.log(2.)
         otp_str = "rescaled BCE loss of test set is {:.4f}, "+\
@@ -419,6 +439,7 @@ if __name__ == '__main__':
         os.makedirs(args.output_dir)
 
     source_file = h5py.File(args.input_file, 'r')
+    model_name = args.input_file.split('/')[-1].split('_')[-1].split('.')[0] # Vana added
     check_file(source_file, args, which='input')
 
     particle = {'1-photons': 'photon', '1-pions': 'pion',
@@ -573,7 +594,9 @@ if __name__ == '__main__':
             source_array = prepare_high_data_for_classifier(source_file, hlf, 0.)
             reference_array = prepare_high_data_for_classifier(reference_file, reference_hlf, 1.)
 
+        print("Source and Ref array sizes: ", source_array.shape, reference_array.shape) # Vana added
         train_data, test_data, val_data = ttv_split(source_array, reference_array)
+        print("train and test sizes: ", train_data.shape, test_data.shape, val_data.shape) # Vana added
 
         # set up device
         args.device = torch.device('cuda:'+str(args.which_cuda) \
@@ -616,13 +639,15 @@ if __name__ == '__main__':
             eval_acc, eval_auc, eval_JSD = evaluate_cls(classifier, val_dataloader, args,
                                                         final_eval=True,
                                                         calibration_data=test_dataloader)
-        print("Final result of classifier test (AUC / JSD):")
-        print("{:.4f} / {:.4f}".format(eval_auc, eval_JSD))
-        with open(os.path.join(args.output_dir, 'classifier_{}_{}.txt'.format(args.mode,
-                                                                              args.dataset)),
-                  'a') as f:
+        #print("Final result of classifier test (AUC / JSD):") # Vana original line
+        #print("{:.4f} / {:.4f}".format(model_name, eval_auc, eval_JSD)) # Vana original line
+        print("Final result of classifier test (AUC / JSD) {} : {:.4f} / {:.4f}".format(model_name, eval_auc, eval_JSD)) # Vana added
+        #with open(os.path.join(args.output_dir, 'classifier_{}_{}.txt'.format(args.mode, # Vana original line
+        #                                                                      args.dataset)), # Vana original line
+	#									'a') as f:	# Vana original line
+        with open(os.path.join(args.output_dir, 'classifier_{}_{}_{}.txt'.format(args.mode, args.dataset, model_name)), 'a') as f:  # Vana added
             f.write('Final result of classifier test (AUC / JSD):\n'+\
-                    '{:.4f} / {:.4f}\n\n'.format(eval_auc, eval_JSD))
+                    '{} {:.4f} / {:.4f}\n\n'.format(model_name, eval_auc, eval_JSD))
 
 
 
